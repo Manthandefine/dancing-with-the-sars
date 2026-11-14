@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c2621" />
+  <title>TerraWatch — Flood &amp; Forest Monitoring Dashboard</title>
+  <meta name="description" content="Environmental monitoring dashboard for flood, forest, risk and impact assessment with interactive maps and analytics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="./styles.css?v=7" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3.5 4.2 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.5-6.8 6-11z"/><path d="M12 21v-7"/><path d="M9.5 15.5 12 18l2.5-2.5"/></svg>
+        </div>
+        <div>
+          <p class="brand-name">TerraWatch</p>
+          <p class="brand-sub">Brahmaputra Basin · Assam</p>
+        </div>
+      </div>
+
+      <nav class="nav-group" aria-label="Sections">
+        <p class="nav-label">Workspace</p>
+        <ul class="nav-list" role="list">
+          <li><button class="nav-item active" data-section="home" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+            <span>Home Dashboard</span></button></li>
+          <li><button class="nav-item" data-section="flood">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 16c2 0 2-1.5 4-1.5S8 16 10 16s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/><path d="M2 20c2 0 2-1.5 4-1.5S8 20 10 20s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/><path d="M12 3c2 2.5 3.5 4.5 3.5 6.5a3.5 3.5 0 0 1-7 0C8.5 7.5 10 5.5 12 3z"/></svg>
+            <span>Flood Monitoring</span></button></li>
+          <li><button class="nav-item" data-section="forest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 6 10h3l-4 6h14l-4-6h3z"/><path d="M12 16v6"/></svg>
+            <span>Forest Monitoring</span></button></li>
+        </ul>
+        <p class="nav-label" style="margin-top:14px">Insights</p>
+        <ul class="nav-list" role="list">
+          <li><button class="nav-item" data-section="risk">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span>Risk Assessment</span></button></li>
+          <li><button class="nav-item" data-section="impact">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
+            <span>Impact Assessment</span></button></li>
+          <li><button class="nav-item" data-section="map">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+            <span>Interactive Map</span></button></li>
+          <li><button class="nav-item" data-section="analytics">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <span>Analytics &amp; Reports</span></button></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="status-pill"><span class="dot dot-live" aria-hidden="true"></span> Sensor network online</div>
+        <p class="muted small">142 of 146 stations reporting</p>
+        <div class="foot-bar" aria-hidden="true"><span></span></div>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay" hidden></div>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="topbar-title">
+          <p class="eyebrow">Brahmaputra Basin · Live</p>
+          <h1 id="pageTitle">Home Dashboard</h1>
+          <p class="muted small" id="pageSubtitle">Real-time overview of hydrological and forest conditions</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="clock mono" id="clock" aria-live="off">--:--:--</div>
+          <span class="badge badge-red" id="alertBadge" title="Active alerts">3 alerts</span>
+          <span class="avatar" aria-label="Signed in as ASDMA operator" role="img">AS</span>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- 1. HOME -->
+        <section class="section active" id="section-home" aria-labelledby="pageTitle">
+          <div class="kpi-grid">
+            <article class="kpi">
+              <p class="kpi-label">Active flood alerts</p>
+              <p class="kpi-value" id="kpiAlerts">3</p>
+              <p class="kpi-delta up">+2 since yesterday</p>
+              <div class="kpi-bar"><span style="width:60%; background:var(--red)"></span></div>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">Forest cover</p>
+              <p class="kpi-value">36.1<span class="unit">%</span></p>
+              <p class="kpi-delta down">−0.4% YoY</p>
+              <div class="kpi-bar"><span style="width:36%; background:var(--green)"></span></div>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">High-risk districts</p>
+              <p class="kpi-value" id="kpiHighRisk">4</p>
+              <p class="kpi-delta neutral">of 10 monitored</p>
+              <div class="kpi-bar"><span style="width:40%; background:var(--amber)"></span></div>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">Population affected</p>
+              <p class="kpi-value">2.84<span class="unit">M</span></p>
+              <p class="kpi-delta up">+312K this week</p>
+              <div class="kpi-bar"><span style="width:72%; background:var(--teal)"></span></div>
+            </article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card">
+              <header class="card-head">
+                <div><h2>Rainfall vs. river level</h2><p class="muted small">Brahmaputra at Neamatighat · last 14 days</p></div>
+                <span class="chip">Live</span>
+              </header>
+              <div class="chart-wrap h-280"><canvas id="homeRainChart" aria-label="Rainfall versus river level chart" role="img"></canvas></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><h2>Latest alerts</h2></header>
+              <ul class="alert-list" id="homeAlerts" role="list"></ul>
+            </article>
+          </div>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Situation overview</h2><p class="muted small">Flood zones and protected forests</p></div></header>
+              <div class="map h-320" id="homeMap" role="region" aria-label="Overview map"></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><div><h2>District risk index</h2><p class="muted small">Composite of hazard, exposure and vulnerability</p></div></header>
+              <div class="chart-wrap h-320"><canvas id="homeRiskChart" aria-label="District risk index chart" role="img"></canvas></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 2. FLOOD -->
+        <section class="section" id="section-flood" hidden>
+          <div class="kpi-grid">
+            <article class="kpi"><p class="kpi-label">Stations above danger</p><p class="kpi-value" id="floodAbove">0</p><p class="kpi-delta up">Critical</p></article>
+            <article class="kpi"><p class="kpi-label">Stations above warning</p><p class="kpi-value" id="floodWarn">0</p><p class="kpi-delta neutral">Watch</p></article>
+            <article class="kpi"><p class="kpi-label">24h avg. rainfall</p><p class="kpi-value">86<span class="unit">mm</span></p><p class="kpi-delta up">+38% vs normal</p></article>
+            <article class="kpi"><p class="kpi-label">Area inundated</p><p class="kpi-value">1,920<span class="unit">km²</span></p><p class="kpi-delta up">+210 km² today</p></article>
+          </div>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Gauge stations &amp; flood extent</h2><p class="muted small">Click a station for details</p></div></header>
+              <div class="map h-380" id="floodMap" role="region" aria-label="Flood monitoring map"></div>
+            </article>
+            <article class="card">
+              <header class="card-head">
+                <div><h2>Water level trend</h2><p class="muted small">Metres above datum · updates every 5s</p></div>
+                <label class="select-wrap"><span class="sr-only">Select station</span>
+                  <select id="stationSelect"></select>
+                </label>
+              </header>
+              <div class="chart-wrap h-380"><canvas id="floodLevelChart" aria-label="Water level trend chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card">
+              <header class="card-head"><h2>River gauge readings</h2><span class="chip"><span class="dot dot-live" aria-hidden="true"></span> Live</span></header>
+              <div class="table-wrap">
+                <table class="table" id="gaugeTable">
+                  <thead><tr><th scope="col">Station</th><th scope="col">River</th><th scope="col">Level (m)</th><th scope="col">Warning</th><th scope="col">Danger</th><th scope="col">Trend</th><th scope="col">Status</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card">
+              <header class="card-head"><div><h2>Rainfall by district</h2><p class="muted small">Last 24 hours (mm)</p></div></header>
+              <div class="chart-wrap h-300"><canvas id="floodRainChart" aria-label="Rainfall by district chart" role="img"></canvas></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 3. FOREST -->
+        <section class="section" id="section-forest" hidden>
+          <div class="kpi-grid">
+            <article class="kpi"><p class="kpi-label">Total forest area</p><p class="kpi-value">28,327<span class="unit">km²</span></p><p class="kpi-delta down">−112 km² YoY</p></article>
+            <article class="kpi"><p class="kpi-label">Mean NDVI</p><p class="kpi-value">0.62</p><p class="kpi-delta neutral">Healthy canopy</p></article>
+            <article class="kpi"><p class="kpi-label">Active fire alerts</p><p class="kpi-value" id="fireCount">0</p><p class="kpi-delta up">VIIRS 375m</p></article>
+            <article class="kpi"><p class="kpi-label">Deforestation hotspots</p><p class="kpi-value">7</p><p class="kpi-delta up">+2 this quarter</p></article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Forest cover trend</h2><p class="muted small">Dense, open and scrub forest (km²)</p></div></header>
+              <div class="chart-wrap h-300"><canvas id="forestTrendChart" aria-label="Forest cover trend chart" role="img"></canvas></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><h2>Land use composition</h2></header>
+              <div class="chart-wrap h-300"><canvas id="landUseChart" aria-label="Land use composition chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Protected areas &amp; hotspots</h2><p class="muted small">Green = protected forest · red = loss hotspot · orange = fire</p></div></header>
+              <div class="map h-360" id="forestMap" role="region" aria-label="Forest monitoring map"></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><div><h2>Vegetation health (NDVI)</h2><p class="muted small">By district, current vs. 5-year mean</p></div></header>
+              <div class="chart-wrap h-360"><canvas id="ndviChart" aria-label="NDVI by district chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <article class="card">
+            <header class="card-head"><h2>Recent fire &amp; loss detections</h2></header>
+            <div class="table-wrap">
+              <table class="table" id="fireTable">
+                <thead><tr><th scope="col">Detected</th><th scope="col">Location</th><th scope="col">Type</th><th scope="col">Area (ha)</th><th scope="col">Confidence</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- 4. RISK -->
+        <section class="section" id="section-risk" hidden>
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Risk matrix</h2><p class="muted small">Likelihood × consequence for monitored districts</p></div></header>
+              <div class="matrix-wrap">
+                <div class="matrix-y" aria-hidden="true">Low · Likelihood · High</div>
+                <div class="matrix" id="riskMatrix" role="grid" aria-label="Risk matrix"></div>
+                <div class="matrix-x" aria-hidden="true">Low · Consequence · High</div>
+              </div>
+            </article>
+            <article class="card">
+              <header class="card-head">
+                <div><h2>Hazard profile</h2><p class="muted small">Multi-hazard vulnerability (0–100)</p></div>
+                <label class="select-wrap"><span class="sr-only">Select district</span><select id="riskDistrictSelect"></select></label>
+              </header>
+              <div class="chart-wrap h-340"><canvas id="riskRadarChart" aria-label="Hazard profile radar chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card">
+              <header class="card-head">
+                <h2>District risk register</h2>
+                <div class="filters" role="group" aria-label="Filter by risk level">
+                  <button class="filter active" data-risk="all">All</button>
+                  <button class="filter" data-risk="High">High</button>
+                  <button class="filter" data-risk="Medium">Medium</button>
+                  <button class="filter" data-risk="Low">Low</button>
+                </div>
+              </header>
+              <div class="table-wrap">
+                <table class="table" id="riskTable">
+                  <thead><tr><th scope="col">District</th><th scope="col">Flood</th><th scope="col">Erosion</th><th scope="col">Landslide</th><th scope="col">Exposure</th><th scope="col">Coping</th><th scope="col">Score</th><th scope="col">Level</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card">
+              <header class="card-head"><h2>Risk zones</h2></header>
+              <div class="map h-340" id="riskMap" role="region" aria-label="Risk zone map"></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 5. IMPACT -->
+        <section class="section" id="section-impact" hidden>
+          <div class="kpi-grid">
+            <article class="kpi"><p class="kpi-label">People affected</p><p class="kpi-value">2.84<span class="unit">M</span></p><p class="kpi-delta up">in 1,904 villages</p></article>
+            <article class="kpi"><p class="kpi-label">Houses damaged</p><p class="kpi-value">18,460</p><p class="kpi-delta up">4,120 fully</p></article>
+            <article class="kpi"><p class="kpi-label">Crop area lost</p><p class="kpi-value">92,300<span class="unit">ha</span></p><p class="kpi-delta up">Rice, jute, mustard</p></article>
+            <article class="kpi"><p class="kpi-label">Est. economic loss</p><p class="kpi-value">₹1,486<span class="unit">Cr</span></p><p class="kpi-delta up">+₹220 Cr this week</p></article>
+          </div>
+
+          <div class="grid grid-2-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Affected population by district</h2><p class="muted small">Thousands of people</p></div></header>
+              <div class="chart-wrap h-300"><canvas id="impactPopChart" aria-label="Affected population chart" role="img"></canvas></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><h2>Loss by sector</h2></header>
+              <div class="chart-wrap h-300"><canvas id="impactSectorChart" aria-label="Loss by sector chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Infrastructure damage</h2><p class="muted small">Units reported damaged</p></div></header>
+              <ul class="progress-list" id="infraList" role="list"></ul>
+            </article>
+            <article class="card">
+              <header class="card-head"><h2>Relief operations</h2></header>
+              <div class="stat-grid">
+                <div class="stat"><p class="stat-value">612</p><p class="muted small">Relief camps</p></div>
+                <div class="stat"><p class="stat-value">184K</p><p class="muted small">People sheltered</p></div>
+                <div class="stat"><p class="stat-value">38</p><p class="muted small">Rescue teams</p></div>
+                <div class="stat"><p class="stat-value">2,140 t</p><p class="muted small">Food distributed</p></div>
+              </div>
+              <div class="chart-wrap h-200"><canvas id="impactTimelineChart" aria-label="Affected population timeline chart" role="img"></canvas></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- 6. MAP -->
+        <section class="section" id="section-map" hidden>
+          <article class="card card-flush">
+            <div class="map-toolbar">
+              <label class="select-wrap"><span class="muted small">Fly to</span>
+                <select id="flyToSelect"><option value="">Select a district…</option></select>
+              </label>
+              <div class="coords mono small" id="coords" aria-live="polite">Click on the map to read coordinates</div>
+              <button class="btn btn-ghost" id="resetViewBtn">Reset view</button>
+            </div>
+            <div class="map map-full" id="fullMap" role="region" aria-label="Interactive map"></div>
+          </article>
+        </section>
+
+        <!-- 7. ANALYTICS -->
+        <section class="section" id="section-analytics" hidden>
+          <article class="card">
+            <form class="report-form" id="reportForm">
+              <label class="field"><span>Report type</span>
+                <select id="reportType">
+                  <option value="flood">Flood situation</option>
+                  <option value="forest">Forest status</option>
+                  <option value="risk">Risk summary</option>
+                  <option value="impact">Impact summary</option>
+                </select>
+              </label>
+              <label class="field"><span>District</span>
+                <select id="reportDistrict"><option value="all">All districts</option></select>
+              </label>
+              <label class="field"><span>From</span><input type="date" id="reportFrom" value="2026-06-01" /></label>
+              <label class="field"><span>To</span><input type="date" id="reportTo" value="2026-11-14" /></label>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Generate report</button>
+                <button type="button" class="btn btn-ghost" id="exportCsvBtn">Export CSV</button>
+                <button type="button" class="btn btn-ghost" id="printBtn">Print</button>
+              </div>
+            </form>
+          </article>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Monthly rainfall</h2><p class="muted small">2026 vs. 2025 vs. 30-year normal (mm)</p></div></header>
+              <div class="chart-wrap h-300"><canvas id="anRainChart" aria-label="Monthly rainfall comparison chart" role="img"></canvas></div>
+            </article>
+            <article class="card">
+              <header class="card-head"><div><h2>Forest loss vs. flood severity</h2><p class="muted small">Correlation across districts</p></div></header>
+              <div class="chart-wrap h-300"><canvas id="anScatterChart" aria-label="Forest loss versus flood severity scatter chart" role="img"></canvas></div>
+            </article>
+          </div>
+
+          <div class="grid grid-1-1">
+            <article class="card">
+              <header class="card-head"><div><h2>Flood events per year</h2><p class="muted small">Major vs. minor events</p></div></header>
+              <div class="chart-wrap h-280"><canvas id="anEventsChart" aria-label="Flood events per year chart" role="img"></canvas></div>
+            </article>
+            <article class="card report-card" id="reportOutput" aria-live="polite">
+              <header class="card-head"><h2>Generated report</h2></header>
+              <p class="muted">Choose options above and select “Generate report”.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="./data.js?v=3"></script>
+  <script src="./app.js?v=6"></script>
+</body>
+</html>
