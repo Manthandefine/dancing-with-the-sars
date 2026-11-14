@@ -81,6 +81,8 @@ def _bootstrap() -> None:
 
 _bootstrap()
 
+MODULE_API = 2   # used by ecoflood_ai.py to detect outdated copies
+
 import argparse
 import json
 from dataclasses import dataclass
