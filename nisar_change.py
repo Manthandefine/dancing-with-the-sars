@@ -43,9 +43,10 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parent
 WEB_DATA = ROOT / "web" / "data"
 
-# Backscatter below this value (in dB) is treated as open water.
-# Calm water is very dark to radar. These are starting points: tune them.
-DEFAULT_THRESHOLDS = {"HH": -20.0, "VV": -20.0, "HV": -25.0, "VH": -25.0}
+# Pixels darker than a cutoff (in dB) count as open water. Calm water is very dark to radar, but wind and
+# current make real rivers brighter, so a fixed number such as -20 dB can miss them. By default the cutoff
+# is picked from the data (Otsu) and kept inside this range. Use --threshold to set it yourself.
+AUTO_RANGE = (-26.0, -15.0)
 
 TIMESTAMP = re.compile(r"(\d{8}T\d{6})")
 
@@ -224,6 +225,49 @@ def otsu(values: np.ndarray) -> float:
     return float(centers[np.argmax(w0 * w1 * (m0 - m1) ** 2)])
 
 
+def auto_threshold(b_s: np.ndarray, a_s: np.ndarray):
+    """Pick the water cutoff from both dates together. Returns (cutoff, raw value before limiting)."""
+    both = np.concatenate([b_s[np.isfinite(b_s)], a_s[np.isfinite(a_s)]])
+    raw = otsu(np.clip(both, -40.0, 5.0))
+    lo, hi = AUTO_RANGE
+    return float(min(max(raw, lo), hi)), float(raw)
+
+
+def report_backscatter(b_s, a_s, thr, raw, mode, pol):
+    """Print what the radar values look like, so a bad water cutoff is easy to spot."""
+    print(f"\nBackscatter check ({pol}, in dB):")
+    shares = {}
+    for label, arr in (("before", b_s), ("after ", a_s)):
+        v = arr[np.isfinite(arr)]
+        p = np.percentile(v, [1, 5, 25, 50, 75, 95])
+        shares[label.strip()] = float(np.mean(v < thr))
+        print(f"  {label} 1%={p[0]:6.1f}  5%={p[1]:6.1f}  25%={p[2]:6.1f}  median={p[3]:6.1f}  "
+              f"75%={p[4]:6.1f}  95%={p[5]:6.1f}")
+    both = np.concatenate([b_s[np.isfinite(b_s)], a_s[np.isfinite(a_s)]])
+    edges = np.arange(-35.0, 0.01, 2.5)
+    hist, _ = np.histogram(np.clip(both, -34.99, -0.01), bins=edges)
+    pct = hist / max(both.size, 1) * 100
+    top = max(float(pct.max()), 1e-9)
+    print("  how the pixels are spread (both dates together):")
+    for i, share in enumerate(pct):
+        lo, hi = edges[i], edges[i + 1]
+        mark = "   <-- water cutoff" if lo <= thr < hi else ""
+        print(f"   {lo:6.1f} to {hi:6.1f}  {'#' * int(round(share / top * 30)):<30} {share:5.1f}%{mark}")
+    how = "picked automatically" if mode == "auto" else "set by you"
+    note = ""
+    if mode == "auto" and abs(raw - thr) > 0.05:
+        note = f" (the histogram suggested {raw:.1f} dB; it was held inside the safe range)"
+    print(f"  water cutoff: {thr:.1f} dB, {how}{note}")
+    print(f"  pixels darker than the cutoff: before {shares['before'] * 100:.1f}%, after {shares['after'] * 100:.1f}%")
+    if min(shares.values()) < 0.005:
+        print("  WARNING: almost nothing is darker than the cutoff on at least one date. The water may be\n"
+              "  brighter than the cutoff (rough river water often is). Try --threshold -17 or -15,\n"
+              "  or compare with --pol HV.")
+    elif max(shares.values()) > 0.5:
+        print("  WARNING: more than half of the pixels count as water. The cutoff is probably too high.\n"
+              "  Try a lower one such as --threshold -20.")
+
+
 def drop_small(mask: np.ndarray, min_pixels: int) -> np.ndarray:
     if min_pixels <= 1:
         return mask
@@ -343,12 +387,12 @@ def run_change(before, after, out_dir, pol, looks, threshold, min_drop, min_blob
     print(f"Common grid: {b_db.shape[1]} x {b_db.shape[0]} pixels")
 
     b_s, a_s = smooth_db(b_db), smooth_db(a_db)
-    if threshold == "auto":
-        both = np.concatenate([b_s[np.isfinite(b_s)], a_s[np.isfinite(a_s)]])
-        thr = otsu(both)
-        print(f"Automatic water threshold: {thr:.1f} dB (check it against the histogram of your area)")
+    if threshold in (None, "auto"):
+        mode = "auto"
+        thr, raw = auto_threshold(b_s, a_s)
     else:
-        thr = float(threshold) if threshold is not None else DEFAULT_THRESHOLDS.get(pol, -20.0)
+        mode, thr, raw = "fixed", float(threshold), None
+    report_backscatter(b_s, a_s, thr, raw, mode, pol)
     cls, diff = classify(b_s, a_s, thr, min_drop, min_blob)
 
     # Areas are counted on the projected grid, where pixels have a known size in metres
@@ -389,6 +433,7 @@ def run_change(before, after, out_dir, pol, looks, threshold, min_drop, min_blob
         "after": {"date": iso(sa.when), "file": sa.path.name},
         "polarization": pol,
         "threshold_db": round(thr, 1),
+        "threshold_mode": mode,
         "min_drop_db": min_drop,
         "looks": looks,
         "pixel_size_m": round(float(dx), 1),
@@ -775,7 +820,7 @@ def main(argv=None):
     s.add_argument("--pol", default="HH", help="HH, HV, VV or VH")
     s.add_argument("--looks", type=int, default=8, help="pixels averaged per side (8 means 160 m pixels)")
     s.add_argument("--threshold", default=None,
-                   help="water threshold in dB, or 'auto'. Default depends on --pol")
+                   help="water cutoff in dB, for example -17. Default: picked from the data ('auto')")
     s.add_argument("--min-drop", type=float, default=3.0, help="minimum change in dB to count as new or receded water")
     s.add_argument("--min-blob", type=int, default=4, help="ignore patches smaller than this many pixels")
     s.add_argument("--bbox", type=float, nargs=4, metavar=("WEST", "SOUTH", "EAST", "NORTH"),
