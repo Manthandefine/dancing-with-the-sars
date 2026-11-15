@@ -260,12 +260,15 @@ The presentation does not provide exact package versions, a complete dependency 
 ### Demo links
 
 - **Live application URL:** _[Add only after deployment has been tested and the public URL is confirmed](https://manthandefine-dancing-with-the-sars-dancing-on-sarsapp-00kezk.streamlit.app/)._
-- **Demo video:** _Add a video link if available._
 - **GitHub repository:** _[Add the final public repository URL.](https://github.com/Manthandefine/dancing-with-the-sars)_
 
 The presentation shows a local prototype at `localhost:8501`. This is a local development address, not a public live-demo URL.
 
 ### Screenshots to include
+<img width="1600" height="850" alt="WhatsApp Image 2026-11-15 at 14 49 51" src="https://github.com/user-attachments/assets/7bcbfa98-5b32-415e-b8b9-e528a00165d4" />
+<img width="1600" height="850" alt="WhatsApp Image 2026-11-15 at 14 49 52" src="https://github.com/user-attachments/assets/bd4923b9-7fb0-47ab-bc8c-2d88ebacdb7f" />
+<img width="1600" height="850" alt="WhatsApp Image 2026-11-15 at 14 49 52 (1)" src="https://github.com/user-attachments/assets/91ea390b-b53a-4cc4-854a-3fddc995962c" />
+
 
 Add genuine screenshots captured from the running application. Suggested screenshots, matching the screens described in the presentation:
 
