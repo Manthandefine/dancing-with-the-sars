@@ -1,0 +1,15 @@
+{
+  "place": "Dubai & Coastal Recovery Zone",
+  "lat": 25.1,
+  "lon": 55.2,
+  "date1": "2018",
+  "date2": "2024",
+  "pol": "HH",
+  "channels": [
+    "HH",
+    "HV"
+  ],
+  "size_km": 15,
+  "pixel_m": 28.5,
+  "source": "Pre-Cached NISAR / ALOS-2 L-Band Dual-Pol Archive (Works 100% Offline)"
+}

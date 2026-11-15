@@ -1,0 +1,15 @@
+{
+  "place": "Kosi River, Bihar, India",
+  "lat": 26.5,
+  "lon": 87.0,
+  "date1": "2015",
+  "date2": "2021",
+  "pol": "HH",
+  "size_km": 15,
+  "pixel_m": 31.5,
+  "source": "JAXA ALOS/ALOS-2 PALSAR L-Band Mosaic (Open Archive, ALOS-2)",
+  "channels": [
+    "HH",
+    "HV"
+  ]
+}

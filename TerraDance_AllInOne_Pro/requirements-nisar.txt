@@ -1,0 +1,4 @@
+# Optional packages for direct NASA ASF HDF5 streaming
+asf_search
+h5py
+pyproj

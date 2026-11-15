@@ -1,0 +1,41 @@
+[
+  {
+    "id": "REP-101",
+    "timestamp": "2026-11-15 07:45",
+    "place": "Kosi River Sector 4 (Embankment East)",
+    "lat": 26.524,
+    "lon": 87.031,
+    "hazard_type": "Flash Flood / Embankment Breach",
+    "water_depth_m": 1.8,
+    "stranded_people": 45,
+    "urgency": "CRITICAL",
+    "status": "SAR Verified (HH -21.4 dB)",
+    "notes": "Low-lying culvert submerged; families gathered on school rooftop awaiting inflatable boat extraction."
+  },
+  {
+    "id": "REP-102",
+    "timestamp": "2026-11-15 08:15",
+    "place": "NH-57 Highway Bridge Approach",
+    "lat": 26.489,
+    "lon": 86.978,
+    "hazard_type": "Road Cut-Off / High Water",
+    "water_depth_m": 0.9,
+    "stranded_people": 12,
+    "urgency": "HIGH",
+    "status": "SAR Verified (HH -19.2 dB)",
+    "notes": "Eastern approach road under 3ft water; heavy trucks only. Alternate northern ridge route remains dry."
+  },
+  {
+    "id": "REP-103",
+    "timestamp": "2026-11-15 08:50",
+    "place": "Rondonia Forestry Outpost KM-42",
+    "lat": -10.815,
+    "lon": -62.885,
+    "hazard_type": "Illegal Canopy Clearing",
+    "water_depth_m": 0.0,
+    "stranded_people": 0,
+    "urgency": "MEDIUM",
+    "status": "SAR Verified (HV -5.6 dB drop)",
+    "notes": "Fresh logging track detected across primary rainforest corridor; matches L-band HV cross-pol drop."
+  }
+]

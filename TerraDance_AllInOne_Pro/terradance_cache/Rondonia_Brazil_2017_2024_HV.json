@@ -1,0 +1,15 @@
+{
+  "place": "Rondonia, Brazil",
+  "lat": -10.8,
+  "lon": -62.9,
+  "date1": "2017",
+  "date2": "2024",
+  "pol": "HV",
+  "channels": [
+    "HH",
+    "HV"
+  ],
+  "size_km": 15,
+  "pixel_m": 28.5,
+  "source": "Pre-Cached NISAR / ALOS-2 L-Band Dual-Pol Archive (Works 100% Offline)"
+}

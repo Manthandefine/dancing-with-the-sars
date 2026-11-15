@@ -1,0 +1,9 @@
+{
+  "name": "TerraDance Pro: SAR & Multi-AI Crisis Command",
+  "short_name": "TerraDance Pro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060b19",
+  "theme_color": "#06b6d4",
+  "description": "Offline-capable L-Band NISAR/PALSAR Radar Change Detection, Early Warning, Flood Evacuation & Relief App."
+}

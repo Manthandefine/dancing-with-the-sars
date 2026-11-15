@@ -1,0 +1,15 @@
+{
+  "place": "Assam Brahmaputra Floodplain, India",
+  "lat": 26.2,
+  "lon": 91.7,
+  "date1": "2021",
+  "date2": "2025",
+  "pol": "HH",
+  "channels": [
+    "HH",
+    "HV"
+  ],
+  "size_km": 15,
+  "pixel_m": 28.5,
+  "source": "Pre-Cached NISAR / ALOS-2 L-Band Dual-Pol Archive (Works 100% Offline)"
+}

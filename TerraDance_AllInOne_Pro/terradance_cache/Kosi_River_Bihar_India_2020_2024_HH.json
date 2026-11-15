@@ -1,0 +1,15 @@
+{
+  "place": "Kosi River, Bihar, India",
+  "lat": 26.5,
+  "lon": 87.0,
+  "date1": "2020",
+  "date2": "2024",
+  "pol": "HH",
+  "channels": [
+    "HH",
+    "HV"
+  ],
+  "size_km": 15,
+  "pixel_m": 28.5,
+  "source": "Pre-Cached NISAR / ALOS-2 L-Band Dual-Pol Archive (Works 100% Offline)"
+}

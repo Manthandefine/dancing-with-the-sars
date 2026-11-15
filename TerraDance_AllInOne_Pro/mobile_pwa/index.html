@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TerraDance Pro Mobile — Offline & Live SAR Mission Control</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root { --bg: #060b19; --card: #0f172a; --accent: #06b6d4; --text: #f8fafc; --muted: #94a3b8; }
+  * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+  body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+  header { background: linear-gradient(135deg, #060b19, #1e1b4b); padding: 18px 16px; border-bottom: 1px solid rgba(6,182,212,0.3); }
+  h1 { margin: 0; font-size: 1.35rem; }
+  .sub { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .badge { display: inline-block; background: rgba(6,182,212,0.18); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); border-radius: 99px; padding: 3px 10px; font-size: 0.75rem; margin: 6px 4px 0 0; }
+  .container { padding: 14px; max-width: 900px; margin: auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi { background: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px; }
+  .kpi-val { font-size: 1.45rem; font-weight: 800; color: #38bdf8; }
+  .card { background: var(--card); border: 1px solid rgba(148,163,184,0.18); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  select, input, button, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #fff; margin-top: 6px; }
+  button { background: linear-gradient(135deg, #06b6d4, #6366f1); border: none; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛰️ TerraDance Pro Mobile PWA</h1>
+  <div class="sub">100% Offline-Ready SAR Radar Change Detection, Flood Evacuation & Crisis Field Companion</div>
+  <span class="badge">✅ Auto Multi-Model AI</span>
+  <span class="badge">📴 Offline Cache Ready</span>
+  <span class="badge">🛰️ NISAR & ALOS-2 L-Band</span>
+</header>
+<div class="container">
+  <div class="card">
+    <strong>📍 Active Field Sector</strong>
+    <select id="sector" onchange="updateSector()">
+      <option value="kosi">Kosi River, Bihar, India (Monsoon Flood Breach)</option>
+      <option value="assam">Assam Brahmaputra Floodplain (Seasonal Flood)</option>
+      <option value="rondonia">Rondonia, Brazil (Deforestation & Canopy Loss)</option>
+      <option value="sundarbans">Sundarbans Mangroves (Cyclone Storm Surge)</option>
+    </select>
+  </div>
+  <div class="grid">
+    <div class="kpi"><div>🌊 Flood / Darker</div><div class="kpi-val" id="k1">28.4%</div><div class="sub" id="k1s">63.9 km² (-21.2 dB)</div></div>
+    <div class="kpi"><div>👥 Exposed Pop.</div><div class="kpi-val" id="k2">26,840</div><div class="sub">Priority Evac</div></div>
+    <div class="kpi"><div>🛣️ Safe Route</div><div class="kpi-val" id="k3">EVAC-ALPHA</div><div class="sub">+38m Ridge Hub</div></div>
+    <div class="kpi"><div>🚤 Relief Boats</div><div class="kpi-val" id="k4">36 Units</div><div class="sub">Staging Ramp #1</div></div>
+  </div>
+  <div class="card">
+    <h3>🛣️ Nearby Evacuation Route Suggestions</h3>
+    <p id="evacText">1. <b>EVAC-ALPHA (6.4 km, +38m elevation):</b> Proceed via Northern Ridge Highway to Civil Defense Hub #1.<br>2. <b>EVAC-BRAVO (8.1 km, +52m elevation):</b> All-weather embankment route to Regional School Relief Camp #2.</p>
+  </div>
+  <div class="card">
+    <h3>📢 Log Offline Community Flood Report</h3>
+    <input id="repLoc" placeholder="Ward / Landmark / Road Name">
+    <input id="repDepth" type="number" step="0.1" placeholder="Flood Water Depth (meters)">
+    <textarea id="repNote" rows="2" placeholder="Stranded people, road cut-off, or shelter requirements..."></textarea>
+    <button onclick="saveRep()">💾 Save Report to Offline Device Storage</button>
+    <div id="repList" style="margin-top:10px; font-size:0.85rem; color:#cbd5e1;"></div>
+  </div>
+</div>
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+const DATA = {
+  kosi: {k1:"28.4%", k1s:"63.9 km² (-21.2 dB)", k2:"26,840", k3:"EVAC-ALPHA", k4:"36 Units", evac:"1. <b>EVAC-ALPHA (6.4 km, +38m):</b> Northern Ridge Highway to Civil Defense Hub #1.<br>2. <b>EVAC-BRAVO (8.1 km, +52m):</b> Elevated Eastern Bund to School Relief Camp #2."},
+  assam: {k1:"31.2%", k1s:"70.2 km² (-20.8 dB)", k2:"31,400", k3:"EVAC-NORTH", k4:"40 Units", evac:"1. <b>EVAC-NORTH (5.2 km, +44m):</b> NH-27 High Embankment to District Stadium Shelter.<br>2. <b>EVAC-BRAVO (7.8 km, +60m):</b> Hilltop Medical Camp Corridor."},
+  rondonia: {k1:"22.6%", k1s:"50.8 km² (HV -5.8 dB)", k2:"4,120", k3:"ECO-CORRIDOR", k4:"8 Patrols", evac:"<b>Deforestation Alert:</b> 5,080 ha primary canopy loss (~736,600 t biomass). Dispatch forestry rangers to NW fishbone logging corridor."},
+  sundarbans: {k1:"34.0%", k1s:"76.5 km² (-21.6 dB)", k2:"34,900", k3:"CYCLONE-HUB-4", k4:"44 Units", evac:"1. <b>CYCLONE-HUB-4 (4.1 km, +18m Concrete Shelter):</b> Elevated brick road avoiding southern breach."}
+};
+function updateSector(){
+  const d = DATA[document.getElementById('sector').value];
+  document.getElementById('k1').innerText = d.k1;
+  document.getElementById('k1s').innerText = d.k1s;
+  document.getElementById('k2').innerText = d.k2;
+  document.getElementById('k3').innerText = d.k3;
+  document.getElementById('k4').innerText = d.k4;
+  document.getElementById('evacText').innerHTML = d.evac;
+}
+function saveRep(){
+  const loc = document.getElementById('repLoc').value || 'Field Marker';
+  const dep = document.getElementById('repDepth').value || '1.0';
+  const note = document.getElementById('repNote').value || 'Urgent check needed';
+  const item = `✅ <b>${loc}</b> (${dep}m depth): ${note} <i>[Saved Offline]</i>`;
+  const list = JSON.parse(localStorage.getItem('td_reps') || '[]');
+  list.unshift(item);
+  localStorage.setItem('td_reps', JSON.stringify(list));
+  renderReps();
+}
+function renderReps(){
+  const list = JSON.parse(localStorage.getItem('td_reps') || '[]');
+  document.getElementById('repList').innerHTML = list.join('<br>');
+}
+renderReps();
+</script>
+</body>
+</html>
