@@ -52,11 +52,11 @@ The presentation does not specify each member's institution, GitHub username or 
 
 | Team member | Institution | GitHub username | Engineering / design role |
 |---|---|---|---|
-| Atharva Chandewar | _To be confirmed_ | _To be confirmed_ | _To be confirmed_ |
-| Radha Bangale | _To be confirmed_ | _To be confirmed_ | _To be confirmed_ |
-| Anushri Borade | _To be confirmed_ | _To be confirmed_ | _To be confirmed_ |
-| Manthan Kale | _To be confirmed_ | _To be confirmed_ | _To be confirmed_ |
-| Dipti Kushwaha | _To be confirmed_ | _To be confirmed_ | _To be confirmed_ |
+| Atharva Chandewar | _Government Polytechnic Nagpur_ | _aadichandewar_ | _Application Design_ |
+| Radha Bangale | _Government Polytechnic Nagpur_ | _radhabangale_hash_ | _Frontend_ |
+| Anushri Borade | _Government Polytechnic Nagpur_ | _boradea17_ | _Backend_ |
+| Manthan Kale | _Government Polytechnic Nagpur_ | _Manthandefine_ | _Backend_ |
+| Dipti Kushwaha | _Government Polytechnic Nagpur_ | _DK007_ | _Researcher_ |
 
 ---
 
@@ -259,9 +259,9 @@ The presentation does not provide exact package versions, a complete dependency 
 
 ### Demo links
 
-- **Live application URL:** _Add only after deployment has been tested and the public URL is confirmed._
+- **Live application URL:** _[Add only after deployment has been tested and the public URL is confirmed](https://manthandefine-dancing-with-the-sars-dancing-on-sarsapp-00kezk.streamlit.app/)._
 - **Demo video:** _Add a video link if available._
-- **GitHub repository:** _Add the final public repository URL._
+- **GitHub repository:** _[Add the final public repository URL.](https://github.com/Manthandefine/dancing-with-the-sars)_
 
 The presentation shows a local prototype at `localhost:8501`. This is a local development address, not a public live-demo URL.
 
